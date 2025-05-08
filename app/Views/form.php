@@ -122,6 +122,13 @@ declare(strict_types=1);
       <legend>縦とい選択</legend>
       <select name="tateToiCode" id="tateToiCode" required>
         <option value="">── 選択してください ──</option>
+  <?php foreach ($tateToiList as $tateToi): ?>
+    <option value="<?= htmlspecialchars($tateToi->getCode(), ENT_QUOTES) ?>"
+      <?= isset($tateToiCode) && $tateToiCode === $tateToi->getCode() ? 'selected' : '' ?>>
+      <?= htmlspecialchars($tateToi->getName(), ENT_QUOTES) ?> /
+      <?= round($tateToi->getA() * 10000, 1) ?>cm²
+    </option>
+  <?php endforeach; ?>
       </select>
     </fieldset>
 
