@@ -42,7 +42,7 @@ class TateToi
     // 計算用の m²
     public function getPrimeA(): float
     {
-        return $this->primeA;
+        return $this->primeA / 10000; // cm² → m²
     }
     public function setPrimeA(float $areaM2): void
     {
