@@ -32,7 +32,9 @@ class CalculatorController
         $tateToiCode = $_POST['tateToiCode']   ?? '';
 
         // ── 2) プルダウン用データ取得 ────────────────────
-        $nokiToiList = $this->loader->loadNokiToiList();
+$csvLoader = new CsvLoader();
+$nokiToiList = $csvLoader->loadNokiToiList();
+$tateToiList = $csvLoader->loadTateToiList();
 
         // ── 3) 計算実行（POST & calc 押下時のみ）──────────────
     $sW            = '';
