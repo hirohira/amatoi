@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 require_once __DIR__ . '/../autoload.php';
 
 use App\Models\CsvLoader;
@@ -8,10 +9,10 @@ $nokiToiCode = $_POST['nokiToiCode'] ?? '';
 
 $loader = new CsvLoader();
 
-// まず共通の「選択してください」を出力
+// 最初に共通のプレースホルダ
 echo '<option value="">── 選択してください ──</option>';
 
-// 谷コイルモード
+// 谷コイルモードなら専用 CSV を全件表示
 if ($formType === 'tani') {
     $list = $loader->loadTateToiTaniList();
     foreach ($list as $tate) {
@@ -32,7 +33,9 @@ foreach ($loader->loadNokiTateCombinations() as $c) {
 }
 foreach ($loader->loadTateToiList() as $tate) {
     $code = $tate->getTateToiCode();
-    if (! isset($valid[$code])) continue;
+    if (!isset($valid[$code])) {
+        continue;
+    }
     $size = htmlspecialchars($tate->getTateToiSize(),   ENT_QUOTES);
     $area = number_format($tate->getPrimeA_Original(), 1);
     echo "<option value=\"{$code}\">{$size} / {$area}cm²</option>";
