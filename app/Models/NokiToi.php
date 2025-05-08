@@ -41,7 +41,7 @@ class NokiToi
 
     public function getA(): float
     {
-        return $this->a;
+        return $this->a / 10000; // cm² → m²
     }
     public function setA(float $area): void
     {
