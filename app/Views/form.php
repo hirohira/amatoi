@@ -1,10 +1,6 @@
 <?php
-// amatoi/app/Views/form.php
 declare(strict_types=1);
-
-// ① Controller から渡される変数をローカルに展開
-//    ※ $nokiToiList, $formType, $sX, $sY, $sS, $koubai, $sH, $sV,
-//       $nokiToiCode, $tateToiCode, $sW, $sQ, $sPrimeQ, $result
+// ① Controller から渡された変数をここで利用
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -45,8 +41,7 @@ declare(strict_types=1);
     <div id="hyoujunFields">
       <fieldset>
         <legend>標準モード：軒とい &amp; 屋根情報</legend>
-        <label>
-          軒とい:
+        <label>軒とい:
           <select name="nokiToiCode" id="nokiToiCode" required>
             <option value="">── 選択してください ──</option>
             <?php foreach ($nokiToiList as $noki): ?>
@@ -59,19 +54,22 @@ declare(strict_types=1);
           </select>
         </label>
         <label>屋根横幅 X (m):
-          <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX, ENT_QUOTES) ?>">
+          <input type="number" name="sX" step="0.01"
+                 value="<?= htmlspecialchars($sX, ENT_QUOTES) ?>">
         </label>
-        <label>屋根奥行   Y (m):
-          <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY, ENT_QUOTES) ?>">
+        <label>屋根奥行 Y (m):
+          <input type="number" name="sY" step="0.01"
+                 value="<?= htmlspecialchars($sY, ENT_QUOTES) ?>">
         </label>
-        <label>降雨強度   S (mm/h):
-          <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS, ENT_QUOTES) ?>">
+        <label>降雨強度 S (mm/h):
+          <input type="number" name="sS" step="1"
+                 value="<?= htmlspecialchars($sS, ENT_QUOTES) ?>">
         </label>
         <label>水勾配 I (‰):
           <select name="koubai">
             <?php for ($i = 1; $i <= 10; $i++): ?>
               <option value="<?= $i ?>"
-                <?= (string)$i === (string)$koubai ? 'selected' : '' ?>>
+                <?= ((string)$i === (string)$koubai) ? 'selected' : '' ?>>
                 <?= $i ?>/1000
               </option>
             <?php endfor; ?>
@@ -85,29 +83,34 @@ declare(strict_types=1);
       <fieldset>
         <legend>谷コイルモード：谷部情報</legend>
         <label>屋根奥行 A (m):
-          <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX, ENT_QUOTES) ?>">
+          <input type="number" name="sX" step="0.01"
+                 value="<?= htmlspecialchars($sX, ENT_QUOTES) ?>">
         </label>
         <label>軒とい長さ B (m):
-          <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY, ENT_QUOTES) ?>">
+          <input type="number" name="sY" step="0.01"
+                 value="<?= htmlspecialchars($sY, ENT_QUOTES) ?>">
         </label>
         <label>降雨強度 a (mm/h):
-          <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS, ENT_QUOTES) ?>">
+          <input type="number" name="sS" step="1"
+                 value="<?= htmlspecialchars($sS, ENT_QUOTES) ?>">
         </label>
         <label>水勾配 I (‰):
           <select name="koubai">
             <?php for ($i = 1; $i <= 10; $i++): ?>
               <option value="<?= $i ?>"
-                <?= (string)$i === (string)$koubai ? 'selected' : '' ?>>
+                <?= ((string)$i === (string)$koubai) ? 'selected' : '' ?>>
                 <?= $i ?>/1000
               </option>
             <?php endfor; ?>
           </select>
         </label>
         <label>谷部高さ H (cm):
-          <input type="number" name="sH" step="1" value="<?= htmlspecialchars($sH, ENT_QUOTES) ?>">
+          <input type="number" name="sH" step="1"
+                 value="<?= htmlspecialchars($sH, ENT_QUOTES) ?>">
         </label>
-        <label>谷部幅   V (cm):
-          <input type="number" name="sV" step="1" value="<?= htmlspecialchars($sV, ENT_QUOTES) ?>">
+        <label>谷部幅 V (cm):
+          <input type="number" name="sV" step="1"
+                 value="<?= htmlspecialchars($sV, ENT_QUOTES) ?>">
         </label>
       </fieldset>
     </div>
@@ -126,18 +129,14 @@ declare(strict_types=1);
 
   <script>
   $(function(){
-    function toggleModeFields(){
+    // モード切替とプルダウン更新
+    function toggleAndUpdate(){
       const mode = $('input[name="form_type"]:checked').val();
-      if(mode === 'hyoujun'){
-        $('#hyoujunFields').show();
-        $('#taniFields').hide();
-      } else {
-        $('#hyoujunFields').hide();
-        $('#taniFields').show();
-      }
+      $('#hyoujunFields').toggle(mode === 'hyoujun');
+      $('#taniFields').toggle(mode === 'tani');
       updateTate();
     }
-
+    // 縦樋プルダウン取得
     function updateTate(){
       const data = {
         form_type:   $('input[name="form_type"]:checked').val(),
@@ -154,16 +153,16 @@ declare(strict_types=1);
       });
     }
 
-    $('input[name="form_type"]').on('change', toggleModeFields);
+    $('input[name="form_type"]').on('change', toggleAndUpdate);
     $('[name="sX"],[name="sY"],[name="sS"],[name="koubai"],[name="sH"],[name="sV"],[name="nokiToiCode"]')
       .on('input change', function(){
-        if($('input[name="form_type"]:checked').val() === 'tani'){
+        if ($('input[name="form_type"]:checked').val() === 'tani') {
           updateTate();
         }
       });
 
     // 初期表示
-    toggleModeFields();
+    toggleAndUpdate();
   });
   </script>
 </body>
