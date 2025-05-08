@@ -77,7 +77,7 @@ class CalculatorController
                     'W'     => $sW,
                     'Q'     => $sQ,
                     'Qp'    => $sPrimeQ,
-                    'result'=> $result,
+                    'result' => $resultMessage,
                 ] = $this->calculator->calculateHyoujun(
                     $x, $y, $s, $i,
                     $A, $R, $sqrtR, $h_head,
@@ -102,7 +102,7 @@ class CalculatorController
                     'W'     => $sW,
                     'Q'     => $sQ,
                     'Qp'    => $sPrimeQ,
-                    'result'=> $result,
+                    'result' => $resultMessage,
                 ] = $this->calculator->calculateTani(
                     $x, $y, $s, $i,
                     $h, $v, $primeA
