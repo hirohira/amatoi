@@ -35,10 +35,10 @@ class CalculatorController
         $nokiToiList = $this->loader->loadNokiToiList();
 
         // ── 3) 計算実行（POST & calc 押下時のみ）──────────────
-        $sW      = '';
-        $sQ      = '';
-        $sPrimeQ = '';
-        $result  = '';
+    $sW            = '';
+    $sQ            = '';
+    $sPrimeQ       = '';
+    $resultMessage = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
             $x = (float)$sX;
@@ -74,9 +74,9 @@ class CalculatorController
 
                 // 計算呼び出し
                 [
-                    'W'     => $sW,
-                    'Q'     => $sQ,
-                    'Qp'    => $sPrimeQ,
+                    'W'      => $sW,
+                    'Q'      => $sQ,
+                    'Qp'     => $sPrimeQ,
                     'result' => $resultMessage,
                 ] = $this->calculator->calculateHyoujun(
                     $x, $y, $s, $i,
@@ -85,8 +85,9 @@ class CalculatorController
                 );
             } else {
                 // ── 谷コイルモード ──────────────────
-                $h = (float)$sH;  // cm→m は Calculator内で対応
-                $v = (float)$sV;
+                // cm→m に変換
+                $h = (float)$sH / 100.0;
+                $v = (float)$sV / 100.0;
 
                 // たてとい情報を検索（谷コイル用CSV）
                 $primeA = 0.0;
@@ -99,9 +100,9 @@ class CalculatorController
 
                 // 計算呼び出し
                 [
-                    'W'     => $sW,
-                    'Q'     => $sQ,
-                    'Qp'    => $sPrimeQ,
+                    'W'      => $sW,
+                    'Q'      => $sQ,
+                    'Qp'     => $sPrimeQ,
                     'result' => $resultMessage,
                 ] = $this->calculator->calculateTani(
                     $x, $y, $s, $i,
