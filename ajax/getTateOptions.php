@@ -4,31 +4,32 @@ require_once __DIR__ . '/../autoload.php';
 
 use App\Models\CsvLoader;
 
-// リクエスト値
 $formType    = $_POST['form_type']    ?? 'hyoujun';
 $nokiToiCode = $_POST['nokiToiCode'] ?? '';
+$selected    = $_POST['tateToiCode'] ?? '';
 
 $loader = new CsvLoader();
 
-// 先頭のプレースホルダ
+// 先頭プレースホルダ
 echo '<option value="">── 選択してください ──</option>';
 
-// ── 谷コイルモードなら、専用CSV を丸ごと返す ─────────
 if ($formType === 'tani') {
+    // 谷コイル用全件
     foreach ($loader->loadTateToiTaniList() as $tate) {
         $code = htmlspecialchars($tate->getTateToiCode(), ENT_QUOTES);
         $size = htmlspecialchars($tate->getTateToiSize(), ENT_QUOTES);
         $area = number_format($tate->getPrimeA_Original(), 1);
-        echo "<option value=\"{$code}\">{$size} / {$area}cm²</option>";
+        $sel  = $code === $selected ? ' selected' : '';
+        echo "<option value=\"{$code}\"{$sel}>{$size} / {$area}cm²</option>";
     }
     exit;
 }
 
-// ── 標準モード：kumiawase.csv による絞り込み ──────────────
+// 標準モード：kumiawase.csv で絞り込み
 $valid = [];
 foreach ($loader->loadNokiTateCombinations() as $c) {
     if ($c->getNokiToiCode() === $nokiToiCode) {
-        $valid[ $c->getTateToiCode() ] = true;
+        $valid[$c->getTateToiCode()] = true;
     }
 }
 foreach ($loader->loadTateToiList() as $tate) {
@@ -38,6 +39,7 @@ foreach ($loader->loadTateToiList() as $tate) {
     }
     $size = htmlspecialchars($tate->getTateToiSize(),   ENT_QUOTES);
     $area = number_format($tate->getPrimeA_Original(), 1);
-    echo "<option value=\"{$code}\">{$size} / {$area}cm²</option>";
+    $sel  = $code === $selected ? ' selected' : '';
+    echo "<option value=\"{$code}\"{$sel}>{$size} / {$area}cm²</option>";
 }
 exit;
