@@ -129,53 +129,53 @@ declare(strict_types=1);
   </form>
 
   <!-- 結果表示 -->
-  <?php if($sW!==''): ?>
-    <fieldset>
-      <legend>計算結果</legend>
-      <p>W：降雨量 &nbsp; <?= htmlspecialchars((string)$sW,ENT_QUOTES) ?> l/s</p>
-      <p>Q：軒とい排水量 &nbsp; <?= htmlspecialchars((string)$sQ,ENT_QUOTES) ?> l/s</p>
-      <p>Q′：縦とい排水量 &nbsp; <?= htmlspecialchars((string)$sPrimeQ,ENT_QUOTES) ?> l/s</p>
-      <p><strong><?= htmlspecialchars((string)$resultMessage, ENT_QUOTES) ?></strong></p>
-    </fieldset>
-  <?php endif; ?>
+<?php if ($sW !== ''): ?>
+  <fieldset>
+    <legend>計算結果</legend>
+    <p>W：降雨量 &nbsp; <?= htmlspecialchars((string)$sW, ENT_QUOTES) ?> l/s</p>
+    <p>Q：軒とい排水量 &nbsp; <?= htmlspecialchars((string)$sQ, ENT_QUOTES) ?> l/s</p>
+    <p>Q′：縦とい排水量 &nbsp; <?= htmlspecialchars((string)$sPrimeQ, ENT_QUOTES) ?> l/s</p>
+    <p><strong><?= htmlspecialchars((string)$resultMessage, ENT_QUOTES) ?></strong></p>
+  </fieldset>
+<?php endif; ?>
 
-  <script>
-  $(function(){
-    function toggleAndUpdate(){
-      const mode = $('input[name="form_type"]:checked').val();
-      $('#hyoujunFields').toggle(mode==='hyoujun');
-      $('#taniFields').toggle(mode==='tani');
-      updateTate();
-    }
-    function updateTate(){
-      const data = {
-        form_type:   $('input[name="form_type"]:checked').val(),
-        sX:          $('[name="sX"]').val(),
-        sY:          $('[name="sY"]').val(),
-        sS:          $('[name="sS"]').val(),
-        koubai:      $('[name="koubai"]').val(),
-        sH:          $('[name="sH"]').val(),
-        sV:          $('[name="sV"]').val(),
-        nokiToiCode: $('[name="nokiToiCode"]').val()
-      };
-      $.post('/amatoi/ajax/getTateOptions.php', data, function(html){
-        $('#tateToiCode').html(html);
-      });
-    }
+<script>
+$(function(){
+  function toggleAndUpdate(){
+    const mode = $('input[name="form_type"]:checked').val();
+    $('#hyoujunFields').toggle(mode === 'hyoujun');
+    $('#taniFields').toggle(mode === 'tani');
+    updateTate();
+  }
+  function updateTate(){
+    const data = {
+      form_type:   $('input[name="form_type"]:checked').val(),
+      sX:          $('[name="sX"]').val(),
+      sY:          $('[name="sY"]').val(),
+      sS:          $('[name="sS"]').val(),
+      koubai:      $('[name="koubai"]').val(),
+      sH:          $('[name="sH"]').val(),
+      sV:          $('[name="sV"]').val(),
+      nokiToiCode: $('[name="nokiToiCode"]').val(),
+      tateToiCode: $('[name="tateToiCode"]').val()
+    };
+    $.post('/amatoi/ajax/getTateOptions.php', data, function(html){
+      $('#tateToiCode').html(html);
+    });
+  }
 
-    // イベント登録
-    $('input[name="form_type"]').on('change', toggleAndUpdate);
-    $('#nokiToiCode').on('change', updateTate);  // 標準モードでも常に絞り込み
-    $('[name="sX"],[name="sY"],[name="sS"],[name="koubai"],[name="sH"],[name="sV"]')
-      .on('input change', function(){
-        if($('input[name="form_type"]:checked').val()==='tani'){
-          updateTate();
-        }
-      });
+  $('input[name="form_type"]').on('change', toggleAndUpdate);
+  $('#nokiToiCode').on('change', updateTate);
+  $('[name="sX"],[name="sY"],[name="sS"],[name="koubai"],[name="sH"],[name="sV"]')
+    .on('input change', function(){
+      if ($('input[name="form_type"]:checked').val() === 'tani') {
+        updateTate();
+      }
+    });
 
-    // 初期表示
-    toggleAndUpdate();
-  });
-  </script>
+  // 初期表示
+  toggleAndUpdate();
+});
+</script>
 </body>
 </html>
