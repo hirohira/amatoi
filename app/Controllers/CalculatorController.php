@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Models\CsvLoader;
@@ -17,7 +19,7 @@ class CalculatorController
 
     public function handleRequest(): void
     {
-        // ── 1. 個別変数の初期化 ──
+        // 1) 入力値＋モードを個別変数に展開
         $formType      = $_POST['form_type']    ?? 'hyoujun';
         $sX            = $_POST['sX']            ?? '';
         $sY            = $_POST['sY']            ?? '';
@@ -27,15 +29,16 @@ class CalculatorController
         $sV            = $_POST['sV']            ?? '';
         $nokiToiCode   = $_POST['nokiToiCode']   ?? '';
         $tateToiCode   = $_POST['tateToiCode']   ?? '';
+        // 結果用
         $sW            = '';
         $sQ            = '';
         $sPrimeQ       = '';
         $resultMessage = '';
 
-        // ── 2. プルダウン用データを読み込む ──
+        // 2) プルダウン用データ
         $nokiToiList = $this->loader->loadNokiToiList();
 
-        // ── 3. 計算実行 ──
+        // 3) 計算実行
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
             $x = (float)$sX;
             $y = (float)$sY;
@@ -44,7 +47,7 @@ class CalculatorController
 
             if ($formType === 'hyoujun') {
                 // 標準モード
-                [$sW, $sQ, $sPrimeQ, $resultMessage] =
+                [ $sW, $sQ, $sPrimeQ, $resultMessage ] =
                     $this->calculator->calculateHyoujun(
                         $x, $y, $s, $i,
                         $nokiToiCode, $tateToiCode
@@ -53,14 +56,14 @@ class CalculatorController
                 // 谷コイルモード
                 $h = (float)$sH;
                 $v = (float)$sV;
-                [$sW, $sQ, $sPrimeQ, $resultMessage] =
+                [ $sW, $sQ, $sPrimeQ, $resultMessage ] =
                     $this->calculator->calculateTani(
                         $x, $y, $s, $i, $h, $v, $tateToiCode
                     );
             }
         }
 
-        // ── 4. ビューを読み込む ──
+        // 4) ビュー呼び出し
         include __DIR__ . '/../Views/form.php';
     }
 }
