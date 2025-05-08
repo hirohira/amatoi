@@ -11,7 +11,7 @@ class CsvLoader
 
     public function __construct()
     {
-        $this->basePath = __DIR__ . '/../data/';
+        $this->basePath = __DIR__ . '/../../data/';
     }
 
     /**
