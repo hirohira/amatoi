@@ -135,7 +135,7 @@ declare(strict_types=1);
       <p>W：降雨量 &nbsp; <?= htmlspecialchars((string)$sW,ENT_QUOTES) ?> l/s</p>
       <p>Q：軒とい排水量 &nbsp; <?= htmlspecialchars((string)$sQ,ENT_QUOTES) ?> l/s</p>
       <p>Q′：縦とい排水量 &nbsp; <?= htmlspecialchars((string)$sPrimeQ,ENT_QUOTES) ?> l/s</p>
-      <p><strong><?= htmlspecialchars($resultMessage,ENT_QUOTES) ?></strong></p>
+      <p><strong><?= htmlspecialchars((string)$resultMessage, ENT_QUOTES) ?></strong></p>
     </fieldset>
   <?php endif; ?>
 
