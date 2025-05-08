@@ -1,9 +1,6 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Models;
-
-use RuntimeException;
 
 class CsvLoader
 {
@@ -14,124 +11,92 @@ class CsvLoader
         $this->basePath = __DIR__ . '/../../data/';
     }
 
-    /**
-     * 軒樋一覧
-     * @return NokiToi[]
-     */
     public function loadNokiToiList(): array
     {
-        $file = $this->basePath . 'nokitoi.csv';
-        $rows = $this->readCsv($file);
-
-        $list = [];
-        foreach ($rows as $row) {
-            if (count($row) < 6) continue;
-            $n = new NokiToi();
-            $n->setNokiToiCode(trim($row[0]));
-            $n->setNokiToiName(trim($row[1]));
-            $origA = (float)$row[2]; // m²
-            $n->setA_Original($origA);
-            $n->setA($origA);
-            $n->setR((float)$row[3]);
-            $n->setSqrtR((float)$row[4]);
-            $origH = (float)$row[5]; // cm
-            $n->setH_Original($origH);
-            $n->setH($origH / 100.0); // m
-            $list[] = $n;
-        }
-        return $list;
+        return $this->loadCsv('nokitoi.csv', NokiToi::class);
     }
 
-    /**
-     * 縦樋一覧（標準モード用）
-     * @return TateToi[]
-     */
     public function loadTateToiList(): array
     {
-        $file = $this->basePath . 'tatetoi.csv';
-        $rows = $this->readCsv($file);
+        return $this->loadCsv('tatetoi.csv', TateToi::class);
+    }
 
-        $list = [];
-        foreach ($rows as $row) {
-            if (count($row) < 3) continue;
-            $t = new TateToi();
-            $t->setTateToiCode(trim($row[0]));
-            $t->setTateToiSize(trim($row[1]));
-            $origA = (float)$row[2]; // cm²
-            $t->setPrimeA_Original($origA);
-            $t->setPrimeA($origA / 10000.0); // m²
-            $list[] = $t;
-        }
-        return $list;
+    public function loadCombinationList(): array
+    {
+        return $this->loadCsv('kumiawase.csv', NokiTateCombination::class);
+    }
+
+    public function loadTaniTateToiList(): array
+    {
+        return $this->loadCsv('tatetoi_tani.csv', TateToi::class);
     }
 
     /**
-     * 縦樋一覧（谷コイルモード用）
-     * @return TateToi[]
+     * 特定の軒といに適合する縦といの一覧を取得
      */
-    public function loadTateToiTaniList(): array
+    public function filterTateToiByNokiToi(string $nokiToiCode): array
     {
-        $file = $this->basePath . 'tatetoi_tani.csv';
-        $rows = $this->readCsv($file);
+        $combinations = $this->loadCombinationList();
+        $validCodes = array_filter($combinations, function ($combo) use ($nokiToiCode) {
+            return $combo->getNokiToiCode() === $nokiToiCode;
+        });
 
-        $list = [];
-        foreach ($rows as $row) {
-            if (count($row) < 3) continue;
-            $t = new TateToi();
-            $t->setTateToiCode(trim($row[0]));
-            $t->setTateToiSize(trim($row[1]));
-            $origA = (float)$row[2];
-            $t->setPrimeA_Original($origA);
-            $t->setPrimeA($origA / 10000.0);
-            $list[] = $t;
-        }
-        return $list;
+        $validTateCodes = array_map(fn($combo) => $combo->getTateToiCode(), $validCodes);
+        $tateToiList = $this->loadTateToiList();
+
+        return array_filter($tateToiList, fn($tate) => in_array($tate->getTateToiCode(), $validTateCodes));
     }
 
     /**
-     * 軒樋–縦樋組み合わせ
-     * @return NokiTateCombination[]
+     * 一致する軒といオブジェクトを取得
      */
-    public function loadNokiTateCombinations(): array
+    public function findNokiToi(string $code): ?NokiToi
     {
-        $file = $this->basePath . 'kumiawase.csv';
-        $rows = $this->readCsv($file);
-
-        $list = [];
-        foreach ($rows as $row) {
-            if (count($row) < 4) continue;
-            $c = new NokiTateCombination();
-            $c->setNokiToiCode(trim($row[0]));
-            $c->setNokiToiName(trim($row[1]));
-            $c->setTateToiSize(trim($row[2]));
-            $c->setTateToiCode(trim($row[3]));
-            $list[] = $c;
+        foreach ($this->loadNokiToiList() as $item) {
+            if ($item->getNokiToiCode() === $code) {
+                return $item;
+            }
         }
-        return $list;
+        return null;
     }
 
     /**
-     * CSV → 2次元配列 (ヘッダー行スキップ)
-     * @param string $path
-     * @return array<int,string[]>
-     * @throws RuntimeException
+     * 一致する縦といオブジェクトを取得
      */
-    private function readCsv(string $path): array
+    public function findTateToi(string $code): ?TateToi
     {
+        foreach ($this->loadTateToiList() as $item) {
+            if ($item->getTateToiCode() === $code) {
+                return $item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 汎用 CSV ローダー
+     */
+    private function loadCsv(string $filename, string $class): array
+    {
+        $path = $this->basePath . $filename;
         if (!file_exists($path)) {
-            throw new RuntimeException("CSVファイルが見つかりません: {$path}");
+            return [];
         }
+
         $handle = fopen($path, 'r');
-        if ($handle === false) {
-            throw new RuntimeException("CSVを開けません: {$path}");
+        if (!$handle) {
+            return [];
         }
-        $data  = [];
-        $first = true;
+
+        $header = fgetcsv($handle);
+        $list = [];
+
         while (($row = fgetcsv($handle)) !== false) {
-            if ($first) { $first = false; continue; }
-            $data[] = $row;
+            $assoc = array_combine($header, $row);
+            $list[] = new $class($assoc);
         }
+
         fclose($handle);
-        return $data;
+        return $list;
     }
 }
