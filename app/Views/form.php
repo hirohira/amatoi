@@ -128,16 +128,34 @@ $resultMessage = $resultMessage ?? '';
     </div>
   <?php endif; ?>
 
-  <script>
-  $(function(){
-    function toggleFields(){
-      const mode = $('input[name="form_type"]:checked').val();
-      $('#hyoujunFields').toggle(mode === 'hyoujun');
-      $('#taniFields').toggle(mode === 'tani');
-    }
-    $('input[name="form_type"]').on('change', toggleFields);
-    toggleFields();
+<script>
+$(function() {
+  function toggleFields() {
+    const mode = $('input[name="form_type"]:checked').val();
+    $('#hyoujunFields').toggle(mode === 'hyoujun');
+    $('#taniFields').toggle(mode === 'tani');
+  }
+
+  // フィールド切替
+  $('input[name="form_type"]').on('change', toggleFields);
+  toggleFields();
+
+  // 軒とい変更時に縦といをAjaxで絞り込み
+  $('#nokiToiCode').on('change', function () {
+    const nokiCode = $(this).val();
+    const formType = $('input[name="form_type"]:checked').val();
+    const selected = $('#tateToiCode').val();
+
+    $.post('ajax/getTateOptions.php', {
+      nokiToiCode: nokiCode,
+      form_type: formType,
+      tateToiCode: selected
+    }, function (data) {
+      $('#tateToiCode').html(data);
+    });
   });
-  </script>
+});
+</script>
+
 </body>
 </html>
