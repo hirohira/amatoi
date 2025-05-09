@@ -23,7 +23,25 @@ class CsvLoader
 
     public function loadCombinationList(): array
     {
-        return $this->loadCsv('kumiawase.csv', NokiTateCombination::class);
+        $file = $this->basePath . 'kumiawase.csv';
+        $combinations = [];
+
+        if (!file_exists($file)) return $combinations;
+
+        if (($handle = fopen($file, 'r')) !== false) {
+            while (($data = fgetcsv($handle)) !== false) {
+                if (count($data) !== 4) continue; // 4列でない行はスキップ
+                $combinations[] = new NokiTateCombination([
+                    'nokiToiCode' => trim($data[0]),
+                    'nokiToiName' => trim($data[1]),
+                    'tateToiName' => trim($data[2]),
+                    'tateToiCode' => trim($data[3])
+                ]);
+            }
+            fclose($handle);
+        }
+
+        return $combinations;
     }
 
     public function loadTaniTateToiList(): array
@@ -70,16 +88,13 @@ class CsvLoader
 
         $header = fgetcsv($handle);
 
-        // 日本語ヘッダを英語キーにマッピング
         $headerMap = [
-            // nokitoi.csv 用
             'コード' => 'nokiToiCode',
             '品名' => 'nokiToiName',
             '断面積' => 'a_Original',
             '径深' => 'r',
             'ルートＲ' => 'sqrtR',
             '軒樋潤辺高さ' => 'h',
-            // tatetoi.csv 用
             'サイズ' => 'tateToiSize',
             '排水有効面積' => 'primeA_Original',
         ];
