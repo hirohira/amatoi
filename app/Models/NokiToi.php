@@ -12,6 +12,16 @@ class NokiToi
     private float  $h_Original         = 0.0;   // cm
     private float  $h                  = 0.0;   // m
 
+public function __construct(array $assoc = [])
+{
+    $this->setNokiToiCode($assoc['コード'] ?? '');
+    $this->setNokiToiName($assoc['品名'] ?? '');
+    $this->setA_Original((float)($assoc['断面積'] ?? 0));
+    $this->setR((float)($assoc['R'] ?? 0));
+    $this->setSqrtR((float)($assoc['√R'] ?? 0));
+    $this->setH_Original((float)($assoc['H'] ?? 0));
+}
+    
     public function getNokiToiCode(): string
     {
         return $this->nokiToiCode;
