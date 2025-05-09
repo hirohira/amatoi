@@ -39,7 +39,11 @@ class CalculatorController
 
                 if ($nokiToi && $tateToi) {
                     $A = $nokiToi->getA(); // cm² → m²
-                    $result = $this->calculator->calculateHyoujun((float)$sX, (float)$sY, (float)$sS, (float)$koubai, $A, $tateToi);
+                    $result = $this->calculator->calculateHyoujun(
+    (float)$sX, (float)$sY, (float)$sS, (float)$koubai,
+    $A, $nokiToi->getR(), $nokiToi->getSqrtR(),
+    $tateToi->getPrimeA(), $nokiToi->getH() // ← ここで自動取得
+);
                     [$sW, $sQ, $sPrimeQ, $resultMessage] = $result;
                 } else {
                     $resultMessage = '軒といまたは縦といが選択されていません。';
