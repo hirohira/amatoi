@@ -88,16 +88,23 @@ class CsvLoader
 
         $header = fgetcsv($handle);
 
-        $headerMap = [
-            'コード' => 'nokiToiCode',
-            '品名' => 'nokiToiName',
-            '断面積' => 'a_Original',
-            '径深' => 'r',
-            'ルートＲ' => 'sqrtR',
-            '軒樋潤辺高さ' => 'h',
-            'サイズ' => 'tateToiSize',
-            '排水有効面積' => 'primeA_Original',
-        ];
+        $headerMap = [];
+        if ($filename === 'tatetoi.csv' || $filename === 'tatetoi_tani.csv') {
+            $headerMap = [
+                'コード' => 'tateToiCode',
+                'サイズ' => 'tateToiSize',
+                '排水有効面積' => 'primeA_Original',
+            ];
+        } elseif ($filename === 'nokitoi.csv') {
+            $headerMap = [
+                'コード' => 'nokiToiCode',
+                '品名' => 'nokiToiName',
+                '断面積' => 'a_Original',
+                '径深' => 'r',
+                'ルートＲ' => 'sqrtR',
+                '軒樋潤辺高さ' => 'h',
+            ];
+        }
 
         $mappedHeader = array_map(fn($h) => $headerMap[$h] ?? $h, $header);
         $list = [];
