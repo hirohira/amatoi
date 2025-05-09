@@ -31,25 +31,15 @@ class CsvLoader
         return $this->loadCsv('tatetoi_tani.csv', TateToi::class);
     }
 
-    /**
-     * 特定の軒といに適合する縦といの一覧を取得
-     */
     public function filterTateToiByNokiToi(string $nokiToiCode): array
     {
         $combinations = $this->loadCombinationList();
-        $validCodes = array_filter($combinations, function ($combo) use ($nokiToiCode) {
-            return $combo->getNokiToiCode() === $nokiToiCode;
-        });
-
+        $validCodes = array_filter($combinations, fn($combo) => $combo->getNokiToiCode() === $nokiToiCode);
         $validTateCodes = array_map(fn($combo) => $combo->getTateToiCode(), $validCodes);
         $tateToiList = $this->loadTateToiList();
-
         return array_filter($tateToiList, fn($tate) => in_array($tate->getTateToiCode(), $validTateCodes));
     }
 
-    /**
-     * 一致する軒といオブジェクトを取得
-     */
     public function findNokiToi(string $code): ?NokiToi
     {
         foreach ($this->loadNokiToiList() as $item) {
@@ -60,9 +50,6 @@ class CsvLoader
         return null;
     }
 
-    /**
-     * 一致する縦といオブジェクトを取得
-     */
     public function findTateToi(string $code): ?TateToi
     {
         foreach ($this->loadTateToiList() as $item) {
@@ -73,26 +60,35 @@ class CsvLoader
         return null;
     }
 
-    /**
-     * 汎用 CSV ローダー
-     */
     private function loadCsv(string $filename, string $class): array
     {
         $path = $this->basePath . $filename;
-        if (!file_exists($path)) {
-            return [];
-        }
+        if (!file_exists($path)) return [];
 
         $handle = fopen($path, 'r');
-        if (!$handle) {
-            return [];
-        }
+        if (!$handle) return [];
 
         $header = fgetcsv($handle);
+
+        // 日本語ヘッダを英語キーにマッピング
+        $headerMap = [
+            // nokitoi.csv 用
+            'コード' => 'nokiToiCode',
+            '品名' => 'nokiToiName',
+            '断面積' => 'a_Original',
+            '径深' => 'r',
+            'ルートＲ' => 'sqrtR',
+            '軒樋潤辺高さ' => 'h',
+            // tatetoi.csv 用
+            'サイズ' => 'tateToiSize',
+            '排水有効面積' => 'primeA_Original',
+        ];
+
+        $mappedHeader = array_map(fn($h) => $headerMap[$h] ?? $h, $header);
         $list = [];
 
         while (($row = fgetcsv($handle)) !== false) {
-            $assoc = array_combine($header, $row);
+            $assoc = array_combine($mappedHeader, $row);
             $list[] = new $class($assoc);
         }
 
