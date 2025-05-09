@@ -25,7 +25,9 @@ class TateToi
     public function setTateToiSize(string $size): void { $this->tateToiSize = $size; }
 
     public function getPrimeA_Original(): float { return $this->primeA_Original; }
-    public function setPrimeA_Original(float $areaCm2): void { $this->primeA_Original = $areaCm2; }
+    public function setPrimeA_Original(float $areaCm2): void {
+    $this->primeA_Original = $areaCm2;
+    $this->setPrimeA($areaCm2 / 10000); }
 
     public function getPrimeA(): float { return $this->primeA / 10000; }
     public function setPrimeA(float $areaM2): void { $this->primeA = $areaM2; }
