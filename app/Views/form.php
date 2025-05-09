@@ -49,14 +49,18 @@ $resultMessage = $resultMessage ?? '';
       <fieldset>
         <legend>標準モード：軒とい &amp; 屋根情報</legend>
         <label>軒とい:
-          <select name="nokiToiCode" id="nokiToiCode" required>
-            <option value="">── 選択してください ──</option>
-            <?php foreach ($nokiToiList as $nokiToi): ?>
-              <option value="<?= $nokiToi->getNokiToiCode() ?>" <?= $nokiToiCode === $nokiToi->getNokiToiCode() ? 'selected' : '' ?>>
-                <?= htmlspecialchars($nokiToi->getNokiToiName()) ?> / <?= round($nokiToi->getA_Original(), 1) ?>cm²
-              </option>
-            <?php endforeach; ?>
-          </select>
+<select name="nokiToiCode" id="nokiToiCode" required>
+  <option value="">── 選択してください ──</option>
+  <?php foreach ($nokiToiList as $nokiToi): ?>
+    <?php
+      $code = $nokiToi->getNokiToiCode();
+      $name = htmlspecialchars($nokiToi->getNokiToiName(), ENT_QUOTES);
+      $area = round($nokiToi->getA() * 10000, 1); // m² → cm²
+      $sel  = $nokiToiCode === $code ? 'selected' : '';
+    ?>
+    <option value="<?= $code ?>" <?= $sel ?>><?= $name ?> / <?= $area ?>cm²</option>
+  <?php endforeach; ?>
+</select>
         </label>
         <label>屋根横幅 X (m):
           <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX) ?>">
@@ -109,14 +113,19 @@ $resultMessage = $resultMessage ?? '';
     <!-- 縦とい選択 -->
     <fieldset>
       <legend>縦とい選択</legend>
-      <select name="tateToiCode" id="tateToiCode" required>
-        <option value="">── 選択してください ──</option>
-        <?php foreach ($tateToiList as $tateToi): ?>
-          <option value="<?= $tateToi->getTateToiCode() ?>" <?= $tateToiCode === $tateToi->getTateToiCode() ? 'selected' : '' ?>>
-            <?= htmlspecialchars($tateToi->getTateToiSize()) ?> / <?= round($tateToi->getPrimeA_Original(), 1) ?>cm²
-          </option>
-        <?php endforeach; ?>
-      </select>
+<select name="tateToiCode" id="tateToiCode" required>
+  <option value="">── 選択してください ──</option>
+  <?php foreach ($tateToiList as $tateToi): ?>
+    <?php
+      $code = $tateToi->getTateToiCode();
+      $name = htmlspecialchars($tateToi->getTateToiSize(), ENT_QUOTES);
+      $area = round($tateToi->getPrimeA() * 10000, 1); // m² → cm²
+      $sel  = $tateToiCode === $code ? 'selected' : '';
+    ?>
+    <option value="<?= $code ?>" <?= $sel ?>><?= $name ?> / <?= $area ?>cm²</option>
+  <?php endforeach; ?>
+</select>
+
     </fieldset>
 
     <button type="submit" name="calc">計算する</button>
