@@ -3,32 +3,52 @@ namespace App\Models;
 
 class TateToi
 {
-    private string $tateToiCode = '';
-    private string $tateToiSize = '';
-    private float $primeA_Original = 0.0;
-    private float $primeA = 0.0;
+    private string $tateToiCode     = '';
+    private string $tateToiSize     = '';
+    private float  $primeA_Original = 0.0;  // cm²
+    private float  $primeA          = 0.0;  // m²
 
-    public function __construct(array $data = [])
+    // コード／サイズ
+    public function getTateToiCode(): string
     {
-        if (!empty($data)) {
-            $this->setTateToiCode($data['tateToiCode'] ?? '');
-            $this->setTateToiSize($data['tateToiSize'] ?? '');
-            $this->setPrimeA_Original((float)($data['primeA_Original'] ?? 0));
-            $this->setPrimeA((float)($data['primeA'] ?? 0));
-        }
+        return $this->tateToiCode;
     }
 
-    public function getTateToiCode(): string { return $this->tateToiCode; }
-    public function setTateToiCode(string $code): void { $this->tateToiCode = $code; }
+    public function setTateToiCode(string $code): void
+    {
+        $this->tateToiCode = $code;
+    }
 
-    public function getTateToiSize(): string { return $this->tateToiSize; }
-    public function setTateToiSize(string $size): void { $this->tateToiSize = $size; }
+    public function getTateToiSize(): string
+    {
+        return $this->tateToiSize;
+    }
 
-    public function getPrimeA_Original(): float { return $this->primeA_Original; }
-    public function setPrimeA_Original(float $areaCm2): void {
-    $this->primeA_Original = $areaCm2;
-    $this->setPrimeA($areaCm2 / 10000); }
+    public function setTateToiSize(string $size): void
+    {
+        $this->tateToiSize = $size;
+    }
 
-    public function getPrimeA(): float { return $this->primeA / 10000; }
-    public function setPrimeA(float $areaM2): void { $this->primeA = $areaM2; }
+    // 元データの cm²
+    public function getPrimeA_Original(): float
+    {
+        return $this->primeA_Original;
+    }
+
+    public function setPrimeA_Original(float $areaCm2): void
+    {
+        $this->primeA_Original = $areaCm2;
+        $this->setPrimeA($areaCm2 / 10000); // cm² → m² に変換して保持
+    }
+
+    // 計算用の m²
+    public function getPrimeA(): float
+    {
+        return $this->primeA;
+    }
+
+    public function setPrimeA(float $areaM2): void
+    {
+        $this->primeA = $areaM2;
+    }
 }
