@@ -23,25 +23,7 @@ class CsvLoader
 
     public function loadCombinationList(): array
     {
-        $file = $this->basePath . 'kumiawase.csv';
-        $combinations = [];
-
-        if (!file_exists($file)) return $combinations;
-
-        if (($handle = fopen($file, 'r')) !== false) {
-            while (($data = fgetcsv($handle)) !== false) {
-                if (count($data) !== 4) continue; // 4列でない行はスキップ
-                $combinations[] = new NokiTateCombination([
-                    'nokiToiCode' => trim($data[0]),
-                    'nokiToiName' => trim($data[1]),
-                    'tateToiName' => trim($data[2]),
-                    'tateToiCode' => trim($data[3])
-                ]);
-            }
-            fclose($handle);
-        }
-
-        return $combinations;
+        return $this->loadCsv('kumiawase.csv', NokiTateCombination::class);
     }
 
     public function loadTaniTateToiList(): array
@@ -102,16 +84,22 @@ class CsvLoader
                 '断面積' => 'a_Original',
                 '径深' => 'r',
                 'ルートＲ' => 'sqrtR',
-                '軒樋潤辺高さ' => 'h',
+                '高さ' => 'h_Original',
             ];
         }
 
-        $mappedHeader = array_map(fn($h) => $headerMap[$h] ?? $h, $header);
         $list = [];
 
         while (($row = fgetcsv($handle)) !== false) {
-            $assoc = array_combine($mappedHeader, $row);
-            $list[] = new $class($assoc);
+            $assoc = array_combine($header, $row);
+
+            $converted = [];
+            foreach ($assoc as $key => $value) {
+                $mappedKey = $headerMap[$key] ?? $key;
+                $converted[$mappedKey] = $value;
+            }
+
+            $list[] = new $class($converted);
         }
 
         fclose($handle);
