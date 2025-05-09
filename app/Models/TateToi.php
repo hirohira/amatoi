@@ -8,6 +8,13 @@ class TateToi
     private float  $primeA_Original = 0.0;  // cm²
     private float  $primeA          = 0.0;  // m²
 
+public function __construct(array $assoc = [])
+{
+    $this->setTateToiCode($assoc['コード'] ?? '');
+    $this->setTateToiSize($assoc['サイズ'] ?? '');
+    $this->setPrimeA_Original((float)($assoc['排水有効面積'] ?? 0));
+}
+    
     // コード／サイズ
     public function getTateToiCode(): string
     {
