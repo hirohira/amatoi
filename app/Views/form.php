@@ -51,9 +51,11 @@ $resultMessage = $resultMessage ?? '';
         <label>軒とい:
           <select name="nokiToiCode" id="nokiToiCode" required>
             <option value="">── 選択してください ──</option>
-            <!-- 適切な選択肢をここに追加 -->
-            <option value="N30" <?= $nokiToiCode === 'N30' ? 'selected' : '' ?>>メタリック調軒といサーフェスケアＦＳ−II型 / 108.7cm²</option>
-            <!-- 他の選択肢も同様に追加 -->
+            <?php foreach ($nokiToiList as $nokiToi): ?>
+              <option value="<?= $nokiToi->getNokiToiCode() ?>" <?= $nokiToiCode === $nokiToi->getNokiToiCode() ? 'selected' : '' ?>>
+                <?= htmlspecialchars($nokiToi->getNokiToiName()) ?> / <?= round($nokiToi->getA_Original(), 1) ?>cm²
+              </option>
+            <?php endforeach; ?>
           </select>
         </label>
         <label>屋根横幅 X (m):
@@ -109,9 +111,11 @@ $resultMessage = $resultMessage ?? '';
       <legend>縦とい選択</legend>
       <select name="tateToiCode" id="tateToiCode" required>
         <option value="">── 選択してください ──</option>
-        <!-- 適切な選択肢をここに追加 -->
-        <option value="T60" <?= $tateToiCode === 'T60' ? 'selected' : '' ?>>メタリック調たてとい60 / 26.6cm²</option>
-        <!-- 他の選択肢も同様に追加 -->
+        <?php foreach ($tateToiList as $tateToi): ?>
+          <option value="<?= $tateToi->getTateToiCode() ?>" <?= $tateToiCode === $tateToi->getTateToiCode() ? 'selected' : '' ?>>
+            <?= htmlspecialchars($tateToi->getTateToiSize()) ?> / <?= round($tateToi->getPrimeA_Original(), 1) ?>cm²
+          </option>
+        <?php endforeach; ?>
       </select>
     </fieldset>
 
