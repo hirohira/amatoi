@@ -1,8 +1,15 @@
 <?php
-declare(strict_types=1);
-// CalculatorController から渡される変数:
-//   $formType, $nokiToiList, $sX, $sY, $sS, $koubai,
-//   $sH, $sV, $sW, $sQ, $sPrimeQ, $resultMessage
+// 初期化
+$form_type = $_POST['form_type'] ?? 'hyoujun';
+$nokiToiCode = $_POST['nokiToiCode'] ?? '';
+$sX = $_POST['sX'] ?? '';
+$sY = $_POST['sY'] ?? '';
+$sS = $_POST['sS'] ?? '';
+$koubai = $_POST['koubai'] ?? '';
+$sH = $_POST['sH'] ?? '';
+$sV = $_POST['sV'] ?? '';
+$tateToiCode = $_POST['tateToiCode'] ?? '';
+$resultMessage = $resultMessage ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -21,98 +28,78 @@ declare(strict_types=1);
 <body>
   <h1>雨樋排水計算システム</h1>
 
-  <form method="post" action="/amatoi/index.php">
+  <form method="post" action="">
     <!-- モード選択 -->
     <fieldset>
       <legend>モード選択</legend>
       <div class="inline">
         <label>
-          <input type="radio" name="form_type" value="hyoujun"
-            <?= $formType==='hyoujun' ? 'checked' : '' ?>>
+          <input type="radio" name="form_type" value="hyoujun" <?= $form_type === 'hyoujun' ? 'checked' : '' ?>>
           標準モード
         </label>
         <label>
-          <input type="radio" name="form_type" value="tani"
-            <?= $formType==='tani' ? 'checked' : '' ?>>
+          <input type="radio" name="form_type" value="tani" <?= $form_type === 'tani' ? 'checked' : '' ?>>
           谷コイルモード
         </label>
       </div>
     </fieldset>
 
-    <!-- 標準モード入力 -->
-    <div id="hyoujunFields">
+    <!-- 標準モード -->
+    <div id="hyoujunFields" style="display: <?= $form_type === 'hyoujun' ? 'block' : 'none' ?>;">
       <fieldset>
         <legend>標準モード：軒とい &amp; 屋根情報</legend>
         <label>軒とい:
           <select name="nokiToiCode" id="nokiToiCode" required>
             <option value="">── 選択してください ──</option>
-            <?php foreach($nokiToiList as $noki): ?>
-              <option value="<?= htmlspecialchars($noki->getNokiToiCode(),ENT_QUOTES)?>"
-                <?= $noki->getNokiToiCode()===$nokiToiCode?'selected':''?>>
-                <?= htmlspecialchars($noki->getNokiToiName(),ENT_QUOTES)?>
-                / <?= number_format($noki->getA_Original()*10000,1) ?>cm²
-              </option>
-            <?php endforeach; ?>
+            <!-- 適切な選択肢をここに追加 -->
+            <option value="N30" <?= $nokiToiCode === 'N30' ? 'selected' : '' ?>>メタリック調軒といサーフェスケアＦＳ−II型 / 108.7cm²</option>
+            <!-- 他の選択肢も同様に追加 -->
           </select>
         </label>
         <label>屋根横幅 X (m):
-          <input type="number" name="sX" step="0.01"
-                 value="<?= htmlspecialchars($sX,ENT_QUOTES)?>">
+          <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX) ?>">
         </label>
         <label>屋根奥行 Y (m):
-          <input type="number" name="sY" step="0.01"
-                 value="<?= htmlspecialchars($sY,ENT_QUOTES)?>">
+          <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY) ?>">
         </label>
         <label>降雨強度 S (mm/h):
-          <input type="number" name="sS" step="1"
-                 value="<?= htmlspecialchars($sS,ENT_QUOTES)?>">
+          <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS) ?>">
         </label>
         <label>水勾配 I (‰):
           <select name="koubai">
-            <?php for($i=1;$i<=10;$i++): ?>
-              <option value="<?=$i?>"
-                <?=((string)$i===(string)$koubai)?'selected':''?>>
-                <?=$i?>/1000
-              </option>
+            <?php for ($i = 1; $i <= 10; $i++): ?>
+              <option value="<?= $i ?>" <?= $koubai == $i ? 'selected' : '' ?>><?= $i ?>/1000</option>
             <?php endfor; ?>
           </select>
         </label>
       </fieldset>
     </div>
 
-    <!-- 谷コイルモード入力 -->
-    <div id="taniFields">
+    <!-- 谷コイルモード -->
+    <div id="taniFields" style="display: <?= $form_type === 'tani' ? 'block' : 'none' ?>;">
       <fieldset>
         <legend>谷コイルモード：谷部情報</legend>
         <label>屋根奥行 A (m):
-          <input type="number" name="sX" step="0.01"
-                 value="<?= htmlspecialchars($sX,ENT_QUOTES)?>">
+          <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX) ?>">
         </label>
         <label>軒とい長さ B (m):
-          <input type="number" name="sY" step="0.01"
-                 value="<?= htmlspecialchars($sY,ENT_QUOTES)?>">
+          <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY) ?>">
         </label>
         <label>降雨強度 a (mm/h):
-          <input type="number" name="sS" step="1"
-                 value="<?= htmlspecialchars($sS,ENT_QUOTES)?>">
+          <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS) ?>">
         </label>
         <label>水勾配 I (‰):
           <select name="koubai">
-            <?php for($i=1;$i<=10;$i++): ?>
-              <option value="<?=$i?>"
-                <?=((string)$i===(string)$koubai)?'selected':''?>>
-                <?=$i?>/1000
-              </option>
+            <?php for ($i = 1; $i <= 10; $i++): ?>
+              <option value="<?= $i ?>" <?= $koubai == $i ? 'selected' : '' ?>><?= $i ?>/1000</option>
             <?php endfor; ?>
           </select>
         </label>
         <label>谷部高さ H (cm):
-          <input type="number" name="sH" step="1"
-                 value="<?= htmlspecialchars($sH,ENT_QUOTES)?>">
+          <input type="number" name="sH" step="1" value="<?= htmlspecialchars($sH) ?>">
         </label>
         <label>谷部幅 V (cm):
-          <input type="number" name="sV" step="1"
-                 value="<?= htmlspecialchars($sV,ENT_QUOTES)?>">
+          <input type="number" name="sV" step="1" value="<?= htmlspecialchars($sV) ?>">
         </label>
       </fieldset>
     </div>
@@ -122,67 +109,31 @@ declare(strict_types=1);
       <legend>縦とい選択</legend>
       <select name="tateToiCode" id="tateToiCode" required>
         <option value="">── 選択してください ──</option>
-  <?php foreach ($tateToiList as $tateToi): ?>
-    <option value="<?= htmlspecialchars($tateToi->getCode(), ENT_QUOTES) ?>"
-      <?= isset($tateToiCode) && $tateToiCode === $tateToi->getCode() ? 'selected' : '' ?>>
-      <?= htmlspecialchars($tateToi->getName(), ENT_QUOTES) ?> /
-      <?= round($tateToi->getA() * 10000, 1) ?>cm²
-    </option>
-  <?php endforeach; ?>
+        <!-- 適切な選択肢をここに追加 -->
+        <option value="T60" <?= $tateToiCode === 'T60' ? 'selected' : '' ?>>メタリック調たてとい60 / 26.6cm²</option>
+        <!-- 他の選択肢も同様に追加 -->
       </select>
     </fieldset>
 
     <button type="submit" name="calc">計算する</button>
   </form>
 
-  <!-- 結果表示 -->
-<?php if ($sW !== ''): ?>
-  <fieldset>
-    <legend>計算結果</legend>
-    <p>W：降雨量 &nbsp; <?= htmlspecialchars((string)$sW, ENT_QUOTES) ?> l/s</p>
-    <p>Q：軒とい排水量 &nbsp; <?= htmlspecialchars((string)$sQ, ENT_QUOTES) ?> l/s</p>
-    <p>Q′：縦とい排水量 &nbsp; <?= htmlspecialchars((string)$sPrimeQ, ENT_QUOTES) ?> l/s</p>
-    <p><strong><?= htmlspecialchars((string)$resultMessage, ENT_QUOTES) ?></strong></p>
-  </fieldset>
-<?php endif; ?>
+  <?php if (!empty($resultMessage)): ?>
+    <div class="result-message">
+      <?= htmlspecialchars($resultMessage) ?>
+    </div>
+  <?php endif; ?>
 
-<script>
-$(function(){
-  function toggleAndUpdate(){
-    const mode = $('input[name="form_type"]:checked').val();
-    $('#hyoujunFields').toggle(mode === 'hyoujun');
-    $('#taniFields').toggle(mode === 'tani');
-    updateTate();
-  }
-  function updateTate(){
-    const data = {
-      form_type:   $('input[name="form_type"]:checked').val(),
-      sX:          $('[name="sX"]').val(),
-      sY:          $('[name="sY"]').val(),
-      sS:          $('[name="sS"]').val(),
-      koubai:      $('[name="koubai"]').val(),
-      sH:          $('[name="sH"]').val(),
-      sV:          $('[name="sV"]').val(),
-      nokiToiCode: $('[name="nokiToiCode"]').val(),
-      tateToiCode: $('[name="tateToiCode"]').val()
-    };
-    $.post('/amatoi/ajax/getTateOptions.php', data, function(html){
-      $('#tateToiCode').html(html);
-    });
-  }
-
-  $('input[name="form_type"]').on('change', toggleAndUpdate);
-  $('#nokiToiCode').on('change', updateTate);
-  $('[name="sX"],[name="sY"],[name="sS"],[name="koubai"],[name="sH"],[name="sV"]')
-    .on('input change', function(){
-      if ($('input[name="form_type"]:checked').val() === 'tani') {
-        updateTate();
-      }
-    });
-
-  // 初期表示
-  toggleAndUpdate();
-});
-</script>
+  <script>
+  $(function(){
+    function toggleFields(){
+      const mode = $('input[name="form_type"]:checked').val();
+      $('#hyoujunFields').toggle(mode === 'hyoujun');
+      $('#taniFields').toggle(mode === 'tani');
+    }
+    $('input[name="form_type"]').on('change', toggleFields);
+    toggleFields();
+  });
+  </script>
 </body>
 </html>
