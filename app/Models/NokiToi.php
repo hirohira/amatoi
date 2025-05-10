@@ -3,40 +3,50 @@ namespace App\Models;
 
 class NokiToi
 {
-    private string $nokiToiCode = '';
-    private string $nokiToiName = '';
-    private float $a = 0.0;       // m^2
-    private float $r = 0.0;
-    private float $sqrtR = 0.0;
-    private float $h = 0.0;       // cm
+    private string $nokiToiCode  = '';
+    private string $nokiToiName  = '';
+    private float  $a            = 0.0;
+    private float  $r            = 0.0;
+    private float  $sqrtR        = 0.0;
+    private float  $h            = 0.0;
 
-    public function __construct(array $data = [])
+    public function __construct(array $data)
     {
-        if (!empty($data)) {
-            $this->setNokiToiCode($data['コード'] ?? '');
-            $this->setNokiToiName($data['品名'] ?? '');
-            $this->setA((float)($data['断面積'] ?? 0.0));
-            $this->setR((float)($data['径深'] ?? 0.0));
-            $this->setSqrtR((float)($data['ルートＲ'] ?? 0.0));
-            $this->setH((float)($data['軒樋潤辺高さ'] ?? 0.0));
-        }
+        $this->nokiToiCode = $data['コード'] ?? '';
+        $this->nokiToiName = $data['品名'] ?? '';
+        $this->a           = isset($data['断面積']) ? (float)$data['断面積'] : 0.0;
+        $this->r           = isset($data['径深']) ? (float)$data['径深'] : 0.0;
+        $this->sqrtR       = isset($data['ルートＲ']) ? (float)$data['ルートＲ'] : 0.0;
+        $this->h           = isset($data['軒樋潤辺高さ']) ? (float)$data['軒樋潤辺高さ'] / 100.0 : 0.0; // cm → m
     }
 
-    public function getNokiToiCode(): string { return $this->nokiToiCode; }
-    public function setNokiToiCode(string $code): void { $this->nokiToiCode = $code; }
+    public function getNokiToiCode(): string
+    {
+        return $this->nokiToiCode;
+    }
 
-    public function getNokiToiName(): string { return $this->nokiToiName; }
-    public function setNokiToiName(string $name): void { $this->nokiToiName = $name; }
+    public function getNokiToiName(): string
+    {
+        return $this->nokiToiName;
+    }
 
-    public function getA(): float { return $this->a; }
-    public function setA(float $a): void { $this->a = $a; }
+    public function getA(): float
+    {
+        return $this->a; // すでに m² 単位
+    }
 
-    public function getR(): float { return $this->r; }
-    public function setR(float $r): void { $this->r = $r; }
+    public function getR(): float
+    {
+        return $this->r;
+    }
 
-    public function getSqrtR(): float { return $this->sqrtR; }
-    public function setSqrtR(float $sqrtR): void { $this->sqrtR = $sqrtR; }
+    public function getSqrtR(): float
+    {
+        return $this->sqrtR;
+    }
 
-    public function getH(): float { return $this->h; }
-    public function setH(float $h): void { $this->h = $h; }
+    public function getH(): float
+    {
+        return $this->h;
+    }
 }
