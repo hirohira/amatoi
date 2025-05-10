@@ -5,38 +5,33 @@ class NokiToi
 {
     private string $nokiToiCode = '';
     private string $nokiToiName = '';
-    private float $a = 0.0;       // m^2
+    private float $a_Original = 0.0;
+    private float $a = 0.0;
     private float $r = 0.0;
     private float $sqrtR = 0.0;
-    private float $h = 0.0;       // cm
+    private float $h_Original = 0.0;
+    private float $h = 0.0;
 
     public function __construct(array $data = [])
     {
-        if (!empty($data)) {
-            $this->setNokiToiCode($data['コード'] ?? '');
-            $this->setNokiToiName($data['品名'] ?? '');
-            $this->setA((float)($data['断面積'] ?? 0.0));
-            $this->setR((float)($data['径深'] ?? 0.0));
-            $this->setSqrtR((float)($data['ルートＲ'] ?? 0.0));
-            $this->setH((float)($data['軒樋潤辺高さ'] ?? 0.0));
+        if ($data) {
+            $this->nokiToiCode = $data['コード'] ?? '';
+            $this->nokiToiName = $data['名称'] ?? '';
+            $this->a_Original = (float)($data['有効断面積'] ?? 0);
+            $this->a = (float)($data['有効断面積'] ?? 0);
+            $this->r = (float)($data['水理半径'] ?? 0);
+            $this->sqrtR = sqrt($this->r);
+            $this->h_Original = (float)($data['水頭高さ'] ?? 0);
+            $this->h = $this->h_Original / 100;
         }
     }
 
     public function getNokiToiCode(): string { return $this->nokiToiCode; }
-    public function setNokiToiCode(string $code): void { $this->nokiToiCode = $code; }
-
     public function getNokiToiName(): string { return $this->nokiToiName; }
-    public function setNokiToiName(string $name): void { $this->nokiToiName = $name; }
-
-    public function getA(): float { return $this->a; }
-    public function setA(float $a): void { $this->a = $a; }
-
+    public function getA_Original(): float { return $this->a_Original; }
+    public function getA(): float { return $this->a / 10000; }
     public function getR(): float { return $this->r; }
-    public function setR(float $r): void { $this->r = $r; }
-
     public function getSqrtR(): float { return $this->sqrtR; }
-    public function setSqrtR(float $sqrtR): void { $this->sqrtR = $sqrtR; }
-
+    public function getH_Original(): float { return $this->h_Original; }
     public function getH(): float { return $this->h; }
-    public function setH(float $h): void { $this->h = $h; }
 }
