@@ -55,7 +55,7 @@ $resultMessage = $resultMessage ?? '';
         <label>屋根横幅 X (m): <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX) ?>"></label>
         <label>屋根奥行 Y (m): <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY) ?>"></label>
         <label>降雨強度 S (mm/h): <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS) ?>"></label>
-        <label>水動垢 I (‰):
+        <label>水勾配 I (‰):
           <select name="koubai">
             <?php for ($i = 1; $i <= 10; $i++): ?>
               <option value="<?= $i ?>" <?= $koubai == $i ? 'selected' : '' ?>><?= $i ?>/1000</option>
