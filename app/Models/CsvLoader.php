@@ -1,52 +1,55 @@
 <?php
+namespace App\Models;
+
 class CsvLoader
 {
-    private $data = [];
+    private string $basePath;
 
-    public function __construct($csvPath)
+    public function __construct()
     {
-        if (!file_exists($csvPath)) {
-            throw new Exception("CSVファイルが見つかりません: {$csvPath}");
-        }
-
-        if (($handle = fopen($csvPath, 'r')) !== false) {
-            $header = fgetcsv($handle);
-            while (($row = fgetcsv($handle)) !== false) {
-                $record = array_combine($header, $row);
-                $this->data[] = $record;
-            }
-            fclose($handle);
-        } else {
-            throw new Exception("CSVファイルを開けませんでした: {$csvPath}");
-        }
+        $this->basePath = __DIR__ . '/../../data/';
     }
 
-    public function getData()
+    public function loadNokiToiList(): array
     {
-        return $this->data;
+        return $this->loadCsv('nokitoi.csv', NokiToi::class);
     }
 
-    public function findByCode($code)
+    public function loadTateToiList(): array
     {
-        foreach ($this->data as $item) {
-            if (isset($item['code']) && $item['code'] === $code) {
-                return $item;
-            }
-        }
-        return null;
+        return $this->loadCsv('tatetoi.csv', TateToi::class);
     }
 
-    public function getOptionsHtml($selectedCode = '')
+    public function loadCombinationList(): array
     {
-        $html = '';
-        foreach ($this->data as $item) {
-            $code = htmlspecialchars($item['code'], ENT_QUOTES, 'UTF-8');
-            $name = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
-            $area = isset($item['area']) ? htmlspecialchars($item['area'], ENT_QUOTES, 'UTF-8') : '0';
-            $selected = ($code === $selectedCode) ? ' selected' : '';
-            $html .= "<option value=\"{$code}\"{$selected}>{$name} / {$area}cm²</option>\n";
+        return $this->loadCsv('kumiawase.csv', NokiTateCombination::class);
+    }
+
+    public function filterTateToiByNokiToi(string $nokiToiCode): array
+    {
+        $combinations = $this->loadCombinationList();
+        $validCodes = array_filter($combinations, fn($combo) => $combo->getNokiToiCode() === $nokiToiCode);
+        $validTateCodes = array_map(fn($combo) => $combo->getTateToiCode(), $validCodes);
+        $tateToiList = $this->loadTateToiList();
+        return array_filter($tateToiList, fn($tate) => in_array($tate->getTateToiCode(), $validTateCodes));
+    }
+
+    private function loadCsv(string $filename, string $class): array
+    {
+        $path = $this->basePath . $filename;
+        if (!file_exists($path)) return [];
+
+        $handle = fopen($path, 'r');
+        if (!$handle) return [];
+
+        $header = fgetcsv($handle);
+        $list = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($header) !== count($row)) continue;
+            $assoc = array_combine($header, $row);
+            $list[] = new $class($assoc);
         }
-        return $html;
+        fclose($handle);
+        return $list;
     }
 }
-?>
