@@ -1,4 +1,5 @@
-<?php // --- form.php ---
+<?php
+// --- form.php ---
 $form_type = $_POST['form_type'] ?? 'hyoujun';
 $nokiToiCode = $_POST['nokiToiCode'] ?? '';
 $sX = $_POST['sX'] ?? '';
@@ -10,11 +11,12 @@ $sV = $_POST['sV'] ?? '';
 $tateToiCode = $_POST['tateToiCode'] ?? '';
 $resultMessage = $resultMessage ?? '';
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>雨柳排水計算システム</title>
+  <title>雨樋排水計算システム</title>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
     fieldset { margin:1em 0; padding:1em; border:1px solid #ccc; }
@@ -25,7 +27,8 @@ $resultMessage = $resultMessage ?? '';
   </style>
 </head>
 <body>
-  <h1>雨柳排水計算システム</h1>
+  <h1>雨樋排水計算システム</h1>
+
   <form method="post" action="">
     <fieldset>
       <legend>モード選択</legend>
@@ -37,18 +40,14 @@ $resultMessage = $resultMessage ?? '';
 
     <div id="hyoujunFields" style="display: <?= $form_type === 'hyoujun' ? 'block' : 'none' ?>;">
       <fieldset>
-        <legend>標準モード：軏とい &amp; 屋根情報</legend>
-        <label>軏とい:
+        <legend>標準モード：軒とい &amp; 屋根情報</legend>
+        <label>軒とい:
           <select name="nokiToiCode" id="nokiToiCode" required>
-            <option value="">―― 選択してください ――</option>
-            <?php foreach ($nokiToiList as $nokiToi): ?>
-              <?php
-                $code = htmlspecialchars($nokiToi->getNokiToiCode(), ENT_QUOTES, 'UTF-8');
-                $name = htmlspecialchars($nokiToi->getNokiToiName(), ENT_QUOTES, 'UTF-8');
-                $area = round($nokiToi->getA() * 10000, 1);
-                $selected = ($code === $nokiToiCode) ? 'selected' : '';
-              ?>
-              <option value="<?= $code ?>" <?= $selected ?>><?= $name ?> / <?= $area ?>cm²</option>
+            <option value="">── 選択してください ──</option>
+            <?php foreach ($nokiToiList as $noki): ?>
+              <option value="<?= $noki->getNokiToiCode() ?>" <?= $noki->getNokiToiCode() === $nokiToiCode ? 'selected' : '' ?>>
+                <?= $noki->getNokiToiName() ?> / <?= round($noki->getA_Original(), 1) ?>cm²
+              </option>
             <?php endforeach; ?>
           </select>
         </label>
@@ -69,7 +68,7 @@ $resultMessage = $resultMessage ?? '';
       <fieldset>
         <legend>谷コイルモード：谷部情報</legend>
         <label>屋根奥行 A (m): <input type="number" name="sX" step="0.01" value="<?= htmlspecialchars($sX) ?>"></label>
-        <label>軏とい長さ B (m): <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY) ?>"></label>
+        <label>軒とい長さ B (m): <input type="number" name="sY" step="0.01" value="<?= htmlspecialchars($sY) ?>"></label>
         <label>降雨強度 a (mm/h): <input type="number" name="sS" step="1" value="<?= htmlspecialchars($sS) ?>"></label>
         <label>水勾配 I (‰):
           <select name="koubai">
@@ -84,48 +83,52 @@ $resultMessage = $resultMessage ?? '';
     </div>
 
     <fieldset>
-      <legend>縛とい選択</legend>
+      <legend>縦とい選択</legend>
       <select name="tateToiCode" id="tateToiCode" required>
-        <option value="">―― 選択してください ――</option>
-        <?php foreach ($tateToiList as $tateToi): ?>
-          <?php
-            $code = htmlspecialchars($tateToi->getTateToiCode(), ENT_QUOTES, 'UTF-8');
-            $size = htmlspecialchars($tateToi->getTateToiSize(), ENT_QUOTES, 'UTF-8');
-            $area = round($tateToi->getPrimeA() * 10000, 1);
-            $selected = ($code === $tateToiCode) ? 'selected' : '';
-          ?>
-          <option value="<?= $code ?>" <?= $selected ?>><?= $size ?> / <?= $area ?>cm²</option>
+        <option value="">── 選択してください ──</option>
+        <?php foreach ($tateToiList as $tate): ?>
+          <option value="<?= $tate->getTateToiCode() ?>" <?= $tate->getTateToiCode() === $tateToiCode ? 'selected' : '' ?>>
+            <?= $tate->getTateToiSize() ?> / <?= round($tate->getPrimeA_Original(), 1) ?>cm²
+          </option>
         <?php endforeach; ?>
       </select>
     </fieldset>
 
     <button type="submit" name="calc">計算する</button>
+
+    <?php if ($resultMessage): ?>
+      <fieldset>
+        <legend>結果</legend>
+        <p><?= htmlspecialchars($resultMessage) ?></p>
+      </fieldset>
+    <?php endif; ?>
   </form>
 
   <script>
-  $(function() {
-    function toggleFields() {
-      const mode = $('input[name="form_type"]:checked').val();
-      $('#hyoujunFields').toggle(mode === 'hyoujun');
-      $('#taniFields').toggle(mode === 'tani');
-    }
-    $('input[name="form_type"]').on('change', toggleFields);
-    toggleFields();
+    $(function() {
+      function toggleFields() {
+        const mode = $('input[name="form_type"]:checked').val();
+        $('#hyoujunFields').toggle(mode === 'hyoujun');
+        $('#taniFields').toggle(mode === 'tani');
+      }
 
-    $('#nokiToiCode').on('change', function () {
-      const nokiCode = $(this).val();
-      const formType = $('input[name="form_type"]:checked').val();
-      const selected = $('#tateToiCode').val();
+      $('input[name="form_type"]').on('change', toggleFields);
+      toggleFields();
 
-      $.post('ajax/getTateOptions.php', {
-        nokiToiCode: nokiCode,
-        form_type: formType,
-        tateToiCode: selected
-      }, function (data) {
-        $('#tateToiCode').html(data);
+      $('#nokiToiCode').on('change', function () {
+        const nokiCode = $(this).val();
+        const formType = $('input[name="form_type"]:checked').val();
+        const selected = $('#tateToiCode').val();
+
+        $.post('ajax/getTateOptions.php', {
+          nokiToiCode: nokiCode,
+          form_type: formType,
+          tateToiCode: selected
+        }, function (data) {
+          $('#tateToiCode').html(data);
+        });
       });
     });
-  });
   </script>
 </body>
 </html>
